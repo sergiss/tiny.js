@@ -34,7 +34,6 @@ export default class World {
         this.quadtree.aabb.min.set(0, 0);
         this.quadtree.aabb.max.set(size.width, size.height);
 
-   
         const list = map.objects["polygon"];
         if (list) {
             for (let obj, vertices, i = 0; i < list.length; ++i) {
@@ -83,7 +82,6 @@ export default class World {
 
     update(iterations = 2) {
 
-        
         this.quadtree.clear();
         for (let body of this.bodies) {
             body.hits = {};

@@ -39,12 +39,20 @@ const game = new Game(canvas, {
             world.add(body);
         }
 
+        let min = new Vec2(Number.MAX_VALUE);
+        let max = new Vec2(Number.MIN_VALUE);
+
         for (let vertices of JSON.parse(data)) {
             for (let i = 0; i < vertices.length; i++) {
                 vertices[i] = new Vec2(vertices[i].x, vertices[i].y);
+                min.min(vertices[i]);
+                max.max(vertices[i]);
             }
             addPolygon(vertices);
         }
+
+        world.quadtree.aabb.min.set(min);
+        world.quadtree.aabb.max.set(max);
         
         gear1 = new Body(ComplexShape.createGear({ radius: 20, teeth: 5 })).setMass(0);
         gear1.position.set(176.5 - 8, 80);
@@ -58,10 +66,10 @@ const game = new Game(canvas, {
     update: () => {
 
         const n = world.bodies.length;
-        if (n < 150) {
+        if (n < 150 && Math.random() < 0.1) {
             const body = new Body(n % 2 == 0 ? new Circle(5) : Polygon.createRandom({radius: 5}));
             body.shape.color = rndBGR();
-            body.position.set(8, 32);
+            body.position.set(0, 32);
             world.add(body);
         }
 
@@ -78,6 +86,7 @@ const game = new Game(canvas, {
         // Update physics
         world.update(10);
 
+        if (world.bodies.length > 26)
         game.camera.position.lerp(world.bodies[26].position, 0.01);
 
     },
