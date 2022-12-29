@@ -121,6 +121,14 @@ const game = new Game(canvas, {
             y: -camera.bounds.height * 0.5 + 10,
             color: 0xFFFFFFFF, shadowEnabled: true,
         });
+
+        font.render({
+            renderer: camera.spriteRenderer,
+            text: "Entities: " + entities.length,
+            x: -camera.bounds.width * 0.5 + 10,
+            y: -camera.bounds.height * 0.5 + 25,
+            color: 0xFFFFFFFF, shadowEnabled: true,
+        });
         camera.spriteRenderer.flush();
 
     }
