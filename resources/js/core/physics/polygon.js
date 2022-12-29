@@ -40,6 +40,8 @@ export default class Polygon extends Shape {
             this.worldVertices[i] = new Vec2();
             this.worldNormals [i] = new Vec2();
         }
+
+        this.lastRotation = null;
     
     }
 
@@ -53,23 +55,33 @@ export default class Polygon extends Shape {
 
     update() {
         const body = this.body;
-        let i, normal;
-        let vertex = this.worldVertices[0].set(this.vertices[0]).rotate(body.rotation).add(body.position);
+        const updateNormals = body.rotation !== this.lastRotation;
+        this.lastRotation = body.rotation;
+        let i, normal; 
+        let vertex = this.worldVertices[0].set(this.vertices[0]);
+        if (body.rotation != 0) vertex.rotate(body.rotation);
+        vertex.add(body.position);
         let minX = vertex.x, 
             minY = vertex.y, 
             maxX = vertex.x, 
             maxY = vertex.y;
         for (i = 1; i < this.vertices.length; i++) {
-            vertex = this.worldVertices[i].set(this.vertices[i]).rotate(body.rotation).add(body.position);
+            vertex = this.worldVertices[i].set(this.vertices[i]);
+            if (body.rotation != 0) vertex.rotate(body.rotation);
+            vertex.add(body.position);
             if (minX > vertex.x) minX = vertex.x;
             else if (maxX < vertex.x) maxX = vertex.x;
             if (minY > vertex.y) minY = vertex.y;
             else if (maxY < vertex.y) maxY = vertex.y;
-            normal = this.worldNormals[i - 1].set(vertex).sub(this.worldVertices[i - 1]).nor();
+            if (updateNormals) {
+                normal = this.worldNormals[i - 1].set(vertex).sub(this.worldVertices[i - 1]).nor();
+                normal.set(-normal.y, normal.x);
+            }
+        }
+        if (updateNormals) {
+            normal = this.worldNormals[i - 1].set(this.worldVertices[0]).sub(vertex).nor();
             normal.set(-normal.y, normal.x);
         }
-        normal = this.worldNormals[i - 1].set(this.worldVertices[0]).sub(vertex).nor();
-        normal.set(-normal.y, normal.x);
 
         this.min.set(minX, minY);
         this.max.set(maxX, maxY);
