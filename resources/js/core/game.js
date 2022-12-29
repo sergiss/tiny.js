@@ -43,10 +43,12 @@ export default class Game {
                 this.dt = diff / 1000; // Delta time
     
                 this.accum += this.dt;
-                while (this.accum >= STEP_TIME) {
+                let n = 10;
+                while (this.accum >= STEP_TIME && n > 0) {
                     this.accum -= STEP_TIME;
                     this.listener.update(STEP_TIME);
                     this.input.update();
+                    n--;
                 }
                 this.listener.render();
             }
