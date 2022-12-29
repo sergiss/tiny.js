@@ -137,7 +137,7 @@ export default class Polygon extends Shape {
 
         const rnd = (min, max) => random() * (max - min) + min;;
 
-        const { numSides = rnd(3, 12), radius = rnd(10, 50) } = props;
+        const { numSides = rnd(3, 6), radius = rnd(10, 50) } = props;
         const polyCoords = [];
 
         const PI2 = Math.PI * 2;
