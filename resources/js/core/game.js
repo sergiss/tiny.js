@@ -16,29 +16,42 @@ export default class Game {
         this.resourceManager = new ResourceManager();
 
         this.input = new InputManager(canvas);
+
+        document.addEventListener("visibilitychange", () => {
+            this.state = document.hidden ? 0 : 1;
+        });
     }
 
     loop(time) {
 
         if (this.running) {
-            const diff = time - this.startTime;
-            this.elapsedTime += diff;
-            this.startTime = time;
-            if (time - this.frameTime >= 1000) { // FPS
-                this.frameTime = time;
-                this.fps = this.frames;
-                this.frames = 0;
-            }
-            this.frames++;
-            this.dt = diff / 1000; // Delta time
 
-            this.accum += this.dt;
-            while (this.accum >= STEP_TIME) {
-                this.accum -= STEP_TIME;
-                this.listener.update(STEP_TIME);
-                this.input.update();
+            if (this.state) {
+                if (this.state == 1) { // Started
+                    this.startTime = time;
+                    this.state = 2; // Running
+                }
+                const diff = time - this.startTime;
+                this.elapsedTime += diff;
+                this.startTime = time;
+                if (time - this.frameTime >= 1000) { // FPS
+                    this.frameTime = time;
+                    this.fps = this.frames;
+                    this.frames = 0;
+                }
+                this.frames++;
+                this.dt = diff / 1000; // Delta time
+    
+                this.accum += this.dt;
+                while (this.accum >= STEP_TIME) {
+                    this.accum -= STEP_TIME;
+                    this.listener.update(STEP_TIME);
+                    this.input.update();
+                }
+                this.listener.render();
             }
-            this.listener.render();
+
+
             requestAnimationFrame(this.loop);
         }
 
@@ -60,6 +73,7 @@ export default class Game {
             this.fps = 0;
             this.frames = 0;
             this.accum = 0;
+            this.state = 1; // Started
 
             requestAnimationFrame(this.loop);
         }
