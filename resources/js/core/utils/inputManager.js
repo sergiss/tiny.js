@@ -12,9 +12,15 @@ class Input {
         this.justPressed = false;
     }
 
-    setPressed(pressed) {        
-        if(pressed && !this.pressed) {
-            this.justPressed = pressed;
+    setPressed(pressed) {
+        if (pressed) {
+            if (!this.pressed) {
+                this.justPressed = true;
+            }
+        } else {
+            if (this.pressed) {
+                this.justReleased = true;
+            }
         }
         this.pressed = pressed;
     }
@@ -30,65 +36,68 @@ export default class InputManager {
         this.inputs = {};
         this.mousePosition = new Vec2();
 
-        window.addEventListener("keydown", (e)=> {
+        window.addEventListener("keydown", (e) => {
             // console.log(e.code)
             this.setPressed(e.code, true);
         }, false)
 
-        window.addEventListener("keyup", (e)=> {
+        window.addEventListener("keyup", (e) => {
             this.setPressed(e.code, false);
         }, false)
 
-        canvas.addEventListener("mousedown", (e)=> {
+        canvas.addEventListener("mousedown", (e) => {
             // console.log(e.button);
             const button = this.setPressed(e.button, true);
-            if(button) {
+            if (button) {
                 button.mousePosition.set(this.mousePosition);
             }
             e.preventDefault();
         }, false)
 
-        canvas.addEventListener("mouseup", (e)=> {
+        canvas.addEventListener("mouseup", (e) => {
             this.setPressed(e.button, false);
             e.preventDefault();
         }, false)
 
-        canvas.addEventListener("mousemove", (e)=> {
+        canvas.addEventListener("mousemove", (e) => {
             const rect = canvas.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
-            const scaleX = canvas.width  / rect.width;
+            const scaleX = canvas.width / rect.width;
             const scaleY = canvas.height / rect.height;
             this.mousePosition.set(x * scaleX, y * scaleY);
         }, false)
 
-        canvas.addEventListener("mouseleave", (e)=> {
-            for(let i = 0; i < 3; ++i) {
+        canvas.addEventListener("mouseleave", (e) => {
+            for (let i = 0; i < 3; ++i) {
                 this.setPressed(i, false);
             }
         }, false)
 
-        canvas.addEventListener('contextmenu', (e)=> { 
+        canvas.addEventListener('contextmenu', (e) => {
             e.preventDefault();
         }, false);
-        
+
         this.hideMouse(true);
 
     }
 
     hideMouse(hide) {
-        this.element.style.cursor = hide ? 'none'  : 'default';
+        this.element.style.cursor = hide ? 'none' : 'default';
     }
 
     update() {
-        for(const key in this.inputs) {
-            this.inputs[key].justPressed = false;
+        let input;
+        for (const key in this.inputs) {
+            input = this.inputs[key];
+            input.justPressed = false;
+            input.justReleased = false;
         }
     }
-    
+
     setPressed(code, pressed) {
         let value = this.inputs[code];
-        if(value) {
+        if (value) {
             value.setPressed(pressed);
         }
         return value;
@@ -104,9 +113,9 @@ export default class InputManager {
 
     obtain(code) {
         let result = this.inputs[code];
-        if(!result) {
+        if (!result) {
             result = new Input();
-            if(this.isButton(code)) {
+            if (this.isButton(code)) {
                 result.mousePosition = new Vec2();
             }
             this.inputs[code] = result;

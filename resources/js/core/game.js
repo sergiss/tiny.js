@@ -16,12 +16,34 @@ export default class Game {
         this.camera = new Camera(canvas);
 
         this.listener = listener;
+
+        this.createAudioContext();
         
         this.loop = this.loop.bind(this);
-        this.resourceManager = new ResourceManager();
+        this.resourceManager = new ResourceManager(this);
 
         this.input = new InputManager(canvas);
 
+    }
+
+    createAudioContext = () => {
+        if (!this.audioContext) {
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const events = ['touchstart', 'touchend', 'mousedown', 'keydown'];
+            const enableAudio =()=> {
+                // Remove events
+                events.forEach((event) => {
+                    document.body.removeEventListener(event, enableAudio)
+                });
+                // Enable audio context
+                this.audioContext.resume();
+                this.audioContext.unlocked = this.audioContext.state !== 'suspend';
+            };
+            // add Events
+            events.forEach((event) => {
+                document.body.addEventListener(event, enableAudio, false)
+            });
+        }
     }
 
     loop(time) {

@@ -55,7 +55,6 @@ const game = new Game(canvas, {
         animation.render(camera, 0, 0);
         camera.spriteRenderer.flush();
 
-        game.camera.spriteRenderer.ambientColor = [1, 1, 1];
         camera.spriteRenderer.projectionMatrix = camera.projection;
         camera.spriteRenderer.begin(camera);
         font.render({

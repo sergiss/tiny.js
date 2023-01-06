@@ -79,7 +79,6 @@ const game = new Game(canvas, {
         camera.clearScreen();
 
         camera.update();
-        game.camera.spriteRenderer.ambientColor = [1, 1, 1];
         camera.spriteRenderer.projectionMatrix = camera.combined;
         camera.spriteRenderer.begin(camera);
         game.resourceManager.get('map').render(camera, Map.GROUP_A);

@@ -7,13 +7,25 @@ import Font from "./font.js";
 import Texture from "../webgl/texture.js";
 import { createGlTexture } from "../webgl/utils.js";
 import Map from "./map.js";
+import Sound from "./sound.js";
 
 export default class ResourceManager {
 
-    constructor() {
+    constructor(game) {
+        this.game = game;
         this.resources = {};
         this.imagePromises = [];
         this.promises = [];
+    }
+
+    loadSound(id, src = id) {
+
+        if (this.resources[id]) return;
+
+        const sound = new Sound();
+        this.resources[id] = sound;
+        this.promises.push(sound.load(src, this) // add Promise
+        .then(()=> (()=> sound.initialize(this)))); // add function to be called after Promise resolves
     }
 
     loadTexture(id, src = id) {
