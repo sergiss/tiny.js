@@ -93,6 +93,25 @@ export default class Polygon extends Shape {
 
     }
 
+    handleCollision(shape, mtv) {
+
+        switch(shape.type) {
+            case 0: { // Circle vs Polygon
+                if (handleCirclePolygonCollision(shape, this, mtv)) {
+                    mtv.normal.negate();
+                    return true;
+                }
+                return false; 
+            }
+            case 1: // Polygon vs Polygon 
+                return handlePolygonPolygonCollision(this, shape, mtv);
+            case 2:
+                return handlePolygonComplexCollision(this, shape, mtv);
+            default:
+        }
+
+    }
+
     contains(point) {
         if (!super.contains(point)) return false;
 		let vertices = this.worldVertices;
@@ -116,6 +135,10 @@ export default class Polygon extends Shape {
 		}
 		return area * 0.5;
 	}
+
+    isConvex() {
+        return isConvex(this.vertices);
+    }
 
     copy() {
         return new Polygon(this.vertices);
@@ -174,29 +197,6 @@ export default class Polygon extends Shape {
         }
 
         return new Polygon(polyCoords, true);
-    }
-
-    isConvex() {
-        return isConvex(this.vertices);
-    }
-
-    handleCollision(shape, mtv) {
-
-        switch(shape.type) {
-            case 0: { // Circle vs Polygon
-                if (handleCirclePolygonCollision(shape, this, mtv)) {
-                    mtv.normal.negate();
-                    return true;
-                }
-                return false; 
-            }
-            case 1: // Polygon vs Polygon 
-                return handlePolygonPolygonCollision(this, shape, mtv);
-            case 2:
-                return handlePolygonComplexCollision(this, shape, mtv);
-            default:
-        }
-
     }
     
 }
