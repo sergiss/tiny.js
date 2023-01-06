@@ -38,9 +38,9 @@ export default class ShapeRenderer {
         this.program = createProgram(gl, vertexShader, fragmentShader);
         this.gl.useProgram(this.program);
         
-        const vertexData = new ArrayBuffer(MAX_BATCH);
+        const vertexData = new ArrayBuffer(MAX_BATCH * VERTEX_BYTE_STRIDE);
 
-        this.buffer = createBuffer(gl, gl.ARRAY_BUFFER, MAX_BATCH * VERTEX_BYTE_STRIDE, gl.DYNAMIC_DRAW);
+        this.buffer = createBuffer(gl, gl.ARRAY_BUFFER, vertexData.byteLength, gl.DYNAMIC_DRAW);
         this.positionData = new Float32Array(vertexData);
         this.colorData = new Uint32Array(vertexData);
 
@@ -327,7 +327,7 @@ export default class ShapeRenderer {
 
             this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.positionData.subarray(0, this.indices));
             this.gl.drawArrays(this.gl.TRIANGLES, 0, this.indices / INDICES_PER_VERT);
-            
+            console.log(this.indices / INDICES_PER_VERT);
             this.indices = 0;
         }
     }
