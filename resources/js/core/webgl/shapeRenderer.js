@@ -332,7 +332,6 @@ export default class ShapeRenderer {
 
             this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.positionData.subarray(0, this.indices));
             this.gl.drawArrays(this.gl.TRIANGLES, 0, this.indices / INDICES_PER_VERT);
-            console.log(this.indices / INDICES_PER_VERT);
             this.indices = 0;
         }
     }

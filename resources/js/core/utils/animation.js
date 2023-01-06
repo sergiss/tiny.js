@@ -3,7 +3,7 @@
  * https://github.com/sergiss/tiny.js
  */
 
-import Vec2 from "../vec2.js";
+import Vec2 from "./vec2.js";
 
 export class ClipArray {
 

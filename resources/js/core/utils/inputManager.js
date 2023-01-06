@@ -40,6 +40,7 @@ export default class InputManager {
         }, false)
 
         canvas.addEventListener("mousedown", (e)=> {
+            // console.log(e.button);
             const button = this.setPressed(e.button, true);
             if(button) {
                 button.mousePosition.set(this.mousePosition);
