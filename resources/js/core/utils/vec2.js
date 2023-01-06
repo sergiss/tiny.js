@@ -1,3 +1,8 @@
+/*
+ * Sergio S. - 2023
+ * https://github.com/sergiss/tiny.js
+ */
+
 export default class Vec2 {
 
     constructor(x = 0, y) {

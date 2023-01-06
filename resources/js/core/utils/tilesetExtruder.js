@@ -1,3 +1,8 @@
+/*
+ * Sergio S. - 2023
+ * https://github.com/sergiss/tiny.js
+ */
+
 export const extrudeTileset = (img, cols, rows, pixels) => {
 
     // Image dimensions

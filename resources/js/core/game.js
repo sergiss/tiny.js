@@ -1,3 +1,8 @@
+/*
+ * Sergio S. - 2023
+ * https://github.com/sergiss/tiny.js
+ */
+
 import Camera from "./webgl/camera.js";
 import ResourceManager from "./utils/resourceManager.js";
 import InputManager from "./utils/inputManager.js";

@@ -1,3 +1,8 @@
+/*
+ * Sergio S. - 2023
+ * https://github.com/sergiss/tiny.js
+ */
+
 import Vec2 from "./vec2.js";
 
 export default class AABB {

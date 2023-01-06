@@ -1,3 +1,8 @@
+/*
+ * Sergio S. - 2023
+ * https://github.com/sergiss/tiny.js
+ */
+
 import { isConvex } from "../utils/utils.js";
 import Vec2 from "../utils/vec2.js";
 import { handleCirclePolygonCollision } from "./circle.js";

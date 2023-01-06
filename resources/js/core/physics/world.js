@@ -1,3 +1,8 @@
+/*
+ * Sergio S. - 2023
+ * https://github.com/sergiss/tiny.js
+ */
+
 import AABB from "../utils/aabb.js";
 import { Quadtree } from "../utils/quadtree.js";
 import Vec2 from "../utils/vec2.js";

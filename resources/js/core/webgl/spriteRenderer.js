@@ -1,3 +1,8 @@
+/*
+ * Sergio S. - 2023
+ * https://github.com/sergiss/tiny.js
+ */
+
 import { BLACK_AND_WHITE_FRAGMENT, DEFAULT_FRAGMENT, DEFAULT_VERTEX, POINT_LIGHT_VERTEX, SEPIA_FRAGMENT, SEPIA_VERTEX, setSepiaFactor } from "./shaders.js";
 import { createProgram, createBuffer } from "./utils.js";
 

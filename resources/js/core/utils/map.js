@@ -1,3 +1,8 @@
+/*
+ * Sergio S. - 2023
+ * https://github.com/sergiss/tiny.js
+ */
+
 import Body from "../physics/body.js";
 import Polygon from "../physics/polygon.js";
 import Loader from "./loader.js";

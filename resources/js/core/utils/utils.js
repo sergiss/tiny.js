@@ -1,3 +1,8 @@
+/*
+ * Sergio S. - 2023
+ * https://github.com/sergiss/tiny.js
+ */
+
 export const lerp = (a, b, t) => a + (b - a) * t;
 
 export const random = (min, max) => Math.random() * (max - min) + min;

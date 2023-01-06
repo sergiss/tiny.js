@@ -1,3 +1,8 @@
+/*
+ * Sergio S. - 2023
+ * https://github.com/sergiss/tiny.js
+ */
+
 import Vec2 from "../utils/vec2.js";
 import Circle from "./circle.js";
 import Polygon from "./polygon.js";

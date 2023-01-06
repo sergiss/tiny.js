@@ -1,3 +1,8 @@
+/*
+ * Sergio S. - 2023
+ * https://github.com/sergiss/tiny.js
+ */
+
 import Game from "../core/game.js";
 import Body from "../core/physics/body.js";
 import Circle from "../core/physics/circle.js";

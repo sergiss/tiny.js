@@ -1,3 +1,8 @@
+/*
+ * Sergio S. - 2023
+ * https://github.com/sergiss/tiny.js
+ */
+
 import { createOrtho, multiply, inverse } from "../webgl/utils.js";
 import Vec2 from "../utils/vec2.js";
 import { lerp } from "../utils/utils.js";

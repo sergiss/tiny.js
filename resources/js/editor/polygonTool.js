@@ -1,6 +1,10 @@
+/*
+ * Sergio S. - 2023
+ * https://github.com/sergiss/tiny.js
+ */
+
 import Body from "../core/physics/body.js";
 import Circle from "../core/physics/circle.js";
-import Polygon from "../core/physics/polygon.js";
 import Tool from "./tool.js";
 
 export default class PolygonTool extends Tool {

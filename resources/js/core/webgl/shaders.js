@@ -1,3 +1,8 @@
+/*
+ * Sergio S. - 2023
+ * https://github.com/sergiss/tiny.js
+ */
+
 export const BLACK_AND_WHITE = 0;
 export const SEPIA = 1;
 export const POINT_LIGHT = 2;

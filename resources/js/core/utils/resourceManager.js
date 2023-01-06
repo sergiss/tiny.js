@@ -1,3 +1,8 @@
+/*
+ * Sergio S. - 2023
+ * https://github.com/sergiss/tiny.js
+ */
+
 import Font from "./font.js";
 import Texture from "../webgl/texture.js";
 import { createGlTexture } from "../webgl/utils.js";

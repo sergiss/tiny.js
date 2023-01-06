@@ -1,3 +1,8 @@
+/*
+ * Sergio S. - 2023
+ * https://github.com/sergiss/tiny.js
+ */
+
 import { createProgram, createBuffer } from "./utils.js";
 
 const PI2 = Math.PI * 2.0;

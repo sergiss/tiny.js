@@ -1,3 +1,8 @@
+/*
+ * Sergio S. - 2023
+ * https://github.com/sergiss/tiny.js
+ */
+
 import Game from "../core/game.js";
 import Vec2 from "../core/utils/vec2.js";
 import { POINT_LIGHT, BLACK_AND_WHITE, SEPIA, setSepiaFactor, setPointLights } from "../core/webgl/shaders.js";
