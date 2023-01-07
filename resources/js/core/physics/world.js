@@ -94,84 +94,82 @@ export default class World {
         }
     }
 
-    debug(camera) {
-
-        for (let body of this.bodies) {
-            body.shape.debug(camera.shapeRenderer);
-        }
-        for (let body of this.mapBodies) {
-            body.shape.debug(camera.shapeRenderer);
-        }
-        // this.quadtree.debug(camera.shapeRenderer);
+    debug(camera, renderRegions = false) {    
+        this.maptree.debug(camera.shapeRenderer, renderRegions);
+        this.quadtree.debug(camera.shapeRenderer, renderRegions);
     }
 
-    handleCollision(a, quadtree) {
-        quadtree.iterate(this.aabb.set(a.shape), (other) => {
-            const b = other.body;
-                
-            if (a !== b // TODO : collision mask
-            &&  a.shape.handleCollision(other, this.mtv)) {
-                
-                const invMass = a.invMass + b.invMass;
-                if (invMass > 0.0) {
-                    let j;
-                    const rv = a.velocity.copy().sub(b.velocity);
-                    // Correct velocities
-                    const normalVelocity = this.mtv.normal.dot(rv);
-                    if (normalVelocity > 0) {
-                        j = normalVelocity * (1.0 + (a.restitution + b.restitution) * 0.5) / invMass;
-                        a.velocity.subScl(this.mtv.normal, j * a.invMass);
-                        b.velocity.addScl(this.mtv.normal, j * b.invMass);
+    handleCollisions(bodies, quadtree) {
+        const pairSet = {};
+        for (let i = 0; i < bodies.length; ++i) {
+            const a = bodies[i];
+            if (a.invMass === 0.0) continue;
+            quadtree.iterate(a.shape, (other) => {
+                const b = other.body;
+                if (a !== b) {
+                    const hash = a.id < b.id ? a.id + "-" + b.id : b.id + "-" + a.id;
+                    if (!pairSet[hash]) {
+                        pairSet[hash] = true;
+                        this.handleCollision(a, b);
                     }
-
-                    // Correct positions
-                    const correction = this.mtv.penetration / invMass;
-                    a.position.subScl(this.mtv.normal, correction * a.invMass);
-                    b.position.addScl(this.mtv.normal, correction * b.invMass);
-
-                    // Update shapes
-                    a.shape.update();
-                    quadtree.update(a.shape);
-                    if (!b.static) {
-                        b.shape.update();
-                        quadtree.update(b.shape);
-                    }
-
                 }
+            });
+        }
+    }
 
-                if (a.collisionListener) {
-                    a.collisionListener(b, this.mtv);
-                }
-
-                if (b.collisionListener) {
-                    this.mtv.normal.negate();
-                    b.collisionListener(a, this.mtv);
-                }
+    handleCollision(a, b) {
+        if (a.shape.handleCollision(b.shape, this.mtv)) {
+            const invMass = a.invMass + b.invMass;
+            
+            // Correct velocities
+            const rvX = a.velocity.x - b.velocity.x;
+            const rvY = a.velocity.y - b.velocity.y;
+            const normalVelocity = this.mtv.normal.dot(rvX, rvY);
+            if (normalVelocity > 0) {
+                const j = normalVelocity * (1.0 + (a.restitution + b.restitution) * 0.5) / invMass;
+                a.velocity.subScl(this.mtv.normal, j * a.invMass);
+                b.velocity.addScl(this.mtv.normal, j * b.invMass);
             }
 
-        });
+            // Correct positions
+            const correction = this.mtv.penetration / invMass;
+            a.position.subScl(this.mtv.normal, correction * a.invMass);
+            b.position.addScl(this.mtv.normal, correction * b.invMass);
+
+            // Update shapes
+            a.shape.update();
+            b.shape.update();
+        
+            if (a.collisionListener) {
+                a.collisionListener(b, this.mtv);
+            }
+
+            if (b.collisionListener) {
+                this.mtv.normal.negate();
+                b.collisionListener(a, this.mtv);
+            }
+
+            return true;
+        }
+        return false;
     }
-
     update(iterations = 2) {
-
+        
         this.quadtree.clear();
         for (let body of this.bodies) {
             body.update();
             this.quadtree.insert(body.shape);
         }
-
+        
         for (let i = 0; i < iterations; ++i) {
-            for (const a of this.bodies) {
-                if (a.mass === 0) continue; // Static body
-                this.handleCollision(a, this.quadtree);
-            }
-
-            for (const a of this.bodies) {
-                if (a.mass === 0) continue; // Static body
-                this.handleCollision(a, this.maptree);
-            }
+            this.handleCollisions(this.bodies, this.quadtree);
+           
+            /* pairs = this.getCollisionPairs(this.bodies, this.maptree);
+            for (const [a, b] of pairs) {
+                this.handleCollision(a, b);
+            } */
         }
-
+        
     }
 
 }

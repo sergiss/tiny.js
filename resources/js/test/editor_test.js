@@ -55,6 +55,37 @@ const game = new Game(canvas, {
             button.style.right = "10px";
         }
 
+        // Create upload button
+        const uploadButton = document.getElementById("upload");
+        if (!uploadButton) {
+            const button = document.createElement("button");
+            button.id = "upload";
+            button.innerText = "Upload";
+            button.onclick = () => {
+
+                // Upload world data
+                const input = document.createElement("input");
+                input.type = "file";
+                input.onchange = (e) => {
+                    const file = e.target.files[0];
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const data = JSON.parse(e.target.result);
+                        console.log(data);
+                        localStorage.setItem('data', data);
+                        infoText = "Uploaded!";
+                    };
+                    reader.readAsText(file);
+                };
+                input.click();
+
+            };
+            document.body.appendChild(button);
+            button.style.position = "absolute";
+            button.style.top = "10px";
+            button.style.right = "90px";
+        }
+        
         // Create Save button
         const saveButton = document.getElementById("save");
         if (!saveButton) {
@@ -68,7 +99,7 @@ const game = new Game(canvas, {
             document.body.appendChild(button);
             button.style.position = "absolute";
             button.style.top = "10px";
-            button.style.right = "100px";
+            button.style.right = "152px";
         }
 
     },

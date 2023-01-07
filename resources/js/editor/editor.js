@@ -100,8 +100,7 @@ export default class Editor {
         // Draw grid
         const gridStep = this.gridStep;
         const gridColor = 0xFF222222;
-        const gridOffset = camera.position.copy().mod(gridStep);
-
+       
         const hw = camera.bounds.width * 0.5;
         const hh = camera.bounds.height * 0.5;
         const cameraPosition = camera.position;

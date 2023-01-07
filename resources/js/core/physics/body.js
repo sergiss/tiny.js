@@ -52,7 +52,6 @@ export default class Body {
             this.velocity.set(0, 0);
         }
         this.force.set(0, 0);
-
     }
 
     setMass(mass) {

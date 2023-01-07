@@ -67,48 +67,36 @@ export class Quadtree {
     }
 
     insert(aabb) {
-        // Check capacity
-        if(this.data.length > Quadtree.MAX_OBJECTS && this.depth < Quadtree.MAX_DEPTH) {
-            let index;
-            if(this.nodes.length === 0) { // Not has child nodes
-                // Reorganize data
-                this.split(); // Create child nodes
-                // Move data to child nodes
-                for(let i = 0; i < this.data.length;) {
-                    index = this.indexOf(this.data[i]); // Find cuadrant
-                    if(index > -1) {
-                        this.nodes[index].insert(this.data[i]); // Insert to child node (data moved)
-                        this.data.splice(i, 1); // Remove from current data                 
-                    } else {
-                        i++; // Next (data not moved)
-                    }                   
+        let index;
+        let node = this;
+        while(true) { // Loop until break
+            if(node.data.length > Quadtree.MAX_OBJECTS && node.depth < Quadtree.MAX_DEPTH) {
+                if(node.nodes.length === 0) { // Not has child nodes
+                    // Reorganize data
+                    node.split(); // Create child nodes
+                    // Move data to child nodes
+                    for(let i = 0; i < node.data.length;) {
+                        index = node.indexOf(node.data[i]); // Find cuadrant
+                        if(index > -1) {
+                            node.nodes[index].insert(node.data[i]); // Insert to child node (data moved)
+                            node.data.splice(i, 1); // Remove from current data
+                        } else {
+                            i++; // Next (data not moved)
+                        }
+                    }
                 }
-            }
-                        
-            index = this.indexOf(aabb); // Find cuadrant
-            if(index > -1) {
-                this.nodes[index].insert(aabb); // Insert to child node          
-            } else {                
-                this.data.push(aabb); // Add to data
-                aabb.node = this;
-            }
-            
-        } else { // Add to data
-            this.data.push(aabb);
-            aabb.node = this;
-        }
-    }
-
-    remove(aabb) {
-        if (aabb.node) {
-            const index = aabb.node.data.indexOf(aabb);
-            if (index > -1) {
-                aabb.node.data.splice(index, 1);
-                aabb.node = null;
-                return true;
+                index = node.indexOf(aabb); // Find cuadrant
+                if(index > -1) {
+                    node = node.nodes[index]; // Insert to child node
+                } else {
+                    node.data.push(aabb); // Add to data
+                    break; // Break loop
+                }
+            } else { // Add to data
+                node.data.push(aabb);
+                break; // Break loop
             }
         }
-        return false;
     }
 
     update(aabb) {
@@ -117,34 +105,42 @@ export class Quadtree {
     }
 
     iterate(aabb, iterator) {
-        // Iterate data in cuadrant
-        for(let i = 0; i < this.data.length; ++i) {
-            if(iterator(this.data[i])) return;
-        }
-        // Iterate child nodes (sub cuadrants)
-        for(let i = 0; i < this.nodes.length; ++i) {
-            if(this.nodes[i].aabb.intersects(aabb)) {
-                this.nodes[i].iterate(aabb, iterator);
+        const stack = [this];
+        do {
+            const node = stack.pop();
+            // Iterate data in cuadrant
+            for(let i = 0; i < node.data.length; ++i) {
+                if(iterator(node.data[i])) return;
             }
-        }        
+            // Iterate child nodes (sub cuadrants)
+            for(let i = 0; i < node.nodes.length; ++i) {
+                if(node.nodes[i].aabb.intersects(aabb)) {
+                    stack.push(node.nodes[i]);
+                }
+            }
+        } while(stack.length > 0);
     }
 
     nodeOf(aabb) {
-        // Iterate data in cuadrant
-        for(let i = 0; i < this.data.length; ++i) {
-            if (this.data[i] === aabb) return this; // Found
-        }
-        // Iterate child nodes (sub cuadrants)
-        for(let i = 0; i < this.nodes.length; ++i) {
-            if(this.nodes[i].aabb.intersects(aabb)) {
-                const result = this.nodes[i].nodeOf(aabb);
-                if (result) return result;
+        const stack = [this];
+        do {
+            const node = stack.pop();
+            // Iterate data in cuadrant
+            for(let i = 0; i < node.data.length; ++i) {
+                if (this.data[i] === aabb) return this; // Found
             }
-        }   
+            // Iterate child nodes (sub cuadrants)
+            for(let i = 0; i < node.nodes.length; ++i) {
+                if(node.nodes[i].aabb.intersects(aabb)) {
+                    stack.push(node.nodes[i]);
+                }
+            }
+        } while(stack.length > 0);
         return null;
     }
-    
-    debug(renderer, data) {
+
+       
+    debug2(renderer, data) {
   
         if(data) {
             for(let i = 0; i < this.data.length; ++i) {
@@ -161,6 +157,28 @@ export class Quadtree {
             this.nodes[i].debug(renderer, data);
         }
 
+    }
+
+    debug(renderer, renderNodes = true) {
+        const stack = [this];
+        do {
+            const node = stack.pop();
+            renderer.color = 0xFFFF00FF;     
+            // Iterate data in cuadrant
+            for(let i = 0; i < node.data.length; ++i) {               
+                if(node.data[i].debug) {  
+                    node.data[i].debug(renderer);
+                }
+            }
+            if (renderNodes) {
+                renderer.color = 0xFF00FFFF;
+                node.aabb.debug(renderer);
+            }
+            // Iterate child nodes (sub cuadrants)
+            for(let i = 0; i < node.nodes.length; ++i) {
+                stack.push(node.nodes[i]);
+            }
+        } while(stack.length > 0);
     }
 
 }
