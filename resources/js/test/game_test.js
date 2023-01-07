@@ -18,13 +18,14 @@ let font;
 let world;
 let addRndShape;
 let gearBody;
+let player;
 
 const game = new Game(canvas, {
     load: () => {
         console.log("load");
         game.resourceManager.loadFont("font", "./resources/data/fonts/font.json");
         // *** Map ***
-        game.resourceManager.loadMap("map", "./resources/data/maps/room.json");
+        game.resourceManager.loadMap("map", "./resources/data/maps/test.json");
 
     },
     create: () => {
@@ -36,13 +37,9 @@ const game = new Game(canvas, {
         game.camera.update();
 
         world = new World(new Vec2(0, 0.098 * 2));
-        let shape = Polygon.createBox(9, 20);
-        let body = new Body(shape, new Vec2(0, 0)).setMass(1);
-        world.add(body);
 
-        shape = ComplexShape.createGear();
+        let shape = ComplexShape.createGear();
         gearBody = new Body(shape, new Vec2(0, 0)).setMass(0);
-        gearBody.static = false;
         gearBody.position.set(80, 90);
         gearBody.rotation = Math.PI / 2;
         world.add(gearBody);
@@ -58,6 +55,11 @@ const game = new Game(canvas, {
         world.setMap(map);
         const size = map.getSize();
         game.camera.position.set(size.width * 0.5, size.height * 0.5);
+
+        shape = Polygon.createBox(9, 20);
+        let body = new Body(shape, new Vec2(1000, 0)).setMass(1);
+        world.add(body);
+        player = body;
     },
     update: () => {
 
@@ -73,9 +75,18 @@ const game = new Game(canvas, {
         // Remove bodies that are too far away
         for (let body of world.bodies) {
             if (body.mass !== 0 && body.position.len2(0, 0) > 9999999) {
-                world.remove(body);
+                body.position.set(100, 0);
+                body.velocity.set(0, 0);
             }
         }
+
+        // Move player
+        if (game.input.obtain('ArrowLeft').pressed) player.force.x -= 0.05;
+        else if (game.input.obtain('ArrowRight').pressed) player.force.x = 0.05;
+        else player.velocity.x *= 0.85;
+        if (game.input.obtain('Space').justPressed) player.force.y -= 4;
+
+        game.camera.position.lerp(player.position, 0.05);
 
         world.update(8);
         // console.log(player.position)

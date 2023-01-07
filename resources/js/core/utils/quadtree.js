@@ -90,11 +90,30 @@ export class Quadtree {
                 this.nodes[index].insert(aabb); // Insert to child node          
             } else {                
                 this.data.push(aabb); // Add to data
+                aabb.node = this;
             }
             
         } else { // Add to data
             this.data.push(aabb);
+            aabb.node = this;
         }
+    }
+
+    remove(aabb) {
+        if (aabb.node) {
+            const index = aabb.node.data.indexOf(aabb);
+            if (index > -1) {
+                aabb.node.data.splice(index, 1);
+                aabb.node = null;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    update(aabb) {
+        this.remove(aabb);
+        this.insert(aabb);
     }
 
     iterate(aabb, iterator) {

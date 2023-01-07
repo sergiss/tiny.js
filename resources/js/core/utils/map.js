@@ -219,34 +219,37 @@ export default class Map extends Loader {
 
     }
 
-    createCollisionBodies(world, layerId) {
-            
-            const ts = this.tileSize; // Tile size
-            const hts = this.tileSize * 0.5;
+    createCollisionBodies(layerId) {
+        
+        const result = [];
 
-            const shape = Polygon.createBox(ts, ts);
+        const ts = this.tileSize; // Tile size
+        const hts = this.tileSize * 0.5;
 
-            const hasNeighbors = (x, y, data) => {
-                const index = y * this.width;
-                return (x > 0 && data[index + x - 1] > -1)
-                    && (x < this.width - 1 && data[index + x + 1] > -1)
-                    && (y > 0 && data[index + x - this.width] > -1)
-                    && (y < this.height - 1 && data[index + x + this.width] > -1);
+        const shape = Polygon.createBox(ts, ts);
+
+        const hasNeighbors = (x, y, data) => {
+            const index = y * this.width;
+            return (x > 0 && data[index + x - 1] > -1)
+                && (x < this.width - 1 && data[index + x + 1] > -1)
+                && (y > 0 && data[index + x - this.width] > -1)
+                && (y < this.height - 1 && data[index + x + this.width] > -1);
+        }
+
+        const layer = this.layerMap[layerId];
+        const data = layer.data;
+        for (let x, y, i = 0; i < data.length; ++i) {
+            y = Math.floor(i / this.width);
+            x = i % this.width;
+            if (data[i] > -1 && !hasNeighbors(x, y, data)) { // if has tile
+                const body = new Body(shape);
+                body.position.set(x * ts + hts, y * ts + hts);
+                body.setMass(0);
+                result.push(body);
             }
-    
-            const layer = this.layerMap[layerId];
-            const data = layer.data;
-            for (let x, y, i = 0; i < data.length; ++i) {
-                y = Math.floor(i / this.width);
-                x = i % this.width;
-                if (data[i] > -1 && !hasNeighbors(x, y, data)) { // if has tile
-                   const body = new Body(shape);
-                   body.position.set(x * ts + hts, y * ts + hts);
-                   body.setMass(0);
-                   world.add(body);
-                }
-            }
-    
+        }
+
+        return result;
     }
 
     getSize() {

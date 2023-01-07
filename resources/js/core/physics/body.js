@@ -44,15 +44,15 @@ export default class Body {
             if (this.mass !== 0) this.force.add(this.world.gravity);
             this.velocity.add(this.force);
             this.position.add(this.velocity);
-
             if (this.world.airFriction) {
                 this.velocity.scl(this.world.airFriction);
             }
+            this.shape.update(this);
         } else {
             this.velocity.set(0, 0);
         }
         this.force.set(0, 0);
-        this.shape.update(this);
+
     }
 
     setMass(mass) {

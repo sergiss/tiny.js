@@ -59,10 +59,12 @@ const game = new Game(canvas, {
         
         gear1 = new Body(ComplexShape.createGear({ radius: 20, teeth: 5 })).setMass(0);
         gear1.position.set(176.5 - 8, 80);
+        gear1.static = false;
         world.add(gear1);
 
         gear2 = new Body(ComplexShape.createGear({ radius: 20, teeth: 5 })).setMass(0);
         gear2.position.set(-176.5 + 8, 80);
+        gear2.static = false;
         world.add(gear2);
 
     },

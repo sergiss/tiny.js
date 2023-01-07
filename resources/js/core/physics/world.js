@@ -4,6 +4,7 @@
  */
 
 import AABB from "../utils/aabb.js";
+import Map from "../utils/map.js";
 import { Quadtree } from "../utils/quadtree.js";
 import Vec2 from "../utils/vec2.js";
 import Body from "./body.js";
@@ -16,6 +17,14 @@ export default class World {
         this.bodies = [];
 
         this.quadtree = new Quadtree(
+            new AABB(
+                new Vec2(-9999),
+                new Vec2(9999)
+            )
+        );
+
+        this.mapBodies = [];
+        this.maptree = new Quadtree(
             new AABB(
                 new Vec2(-9999),
                 new Vec2(9999)
@@ -62,10 +71,19 @@ export default class World {
                 }
             }
         }
+
+        const bodies = this.map.createCollisionBodies(Map.COLLISION);
+        for (const body of bodies) {
+            body.update();
+            this.maptree.insert(body.shape);
+        }
+        this.mapBodies = bodies;
+
     }
 
     add(body) {
         this.bodies.push(body);
+        body.shape.update();
         body.world = this;
     }
 
@@ -81,66 +99,76 @@ export default class World {
         for (let body of this.bodies) {
             body.shape.debug(camera.shapeRenderer);
         }
-
+        for (let body of this.mapBodies) {
+            body.shape.debug(camera.shapeRenderer);
+        }
         // this.quadtree.debug(camera.shapeRenderer);
+    }
+
+    handleCollision(a, quadtree) {
+        quadtree.iterate(this.aabb.set(a.shape), (other) => {
+            const b = other.body;
+                
+            if (a !== b // TODO : collision mask
+            &&  a.shape.handleCollision(other, this.mtv)) {
+                
+                const invMass = a.invMass + b.invMass;
+                if (invMass > 0.0) {
+                    let j;
+                    const rv = a.velocity.copy().sub(b.velocity);
+                    // Correct velocities
+                    const normalVelocity = this.mtv.normal.dot(rv);
+                    if (normalVelocity > 0) {
+                        j = normalVelocity * (1.0 + (a.restitution + b.restitution) * 0.5) / invMass;
+                        a.velocity.subScl(this.mtv.normal, j * a.invMass);
+                        b.velocity.addScl(this.mtv.normal, j * b.invMass);
+                    }
+
+                    // Correct positions
+                    const correction = this.mtv.penetration / invMass;
+                    a.position.subScl(this.mtv.normal, correction * a.invMass);
+                    b.position.addScl(this.mtv.normal, correction * b.invMass);
+
+                    // Update shapes
+                    a.shape.update();
+                    quadtree.update(a.shape);
+                    if (!b.static) {
+                        b.shape.update();
+                        quadtree.update(b.shape);
+                    }
+
+                }
+
+                if (a.collisionListener) {
+                    a.collisionListener(b, this.mtv);
+                }
+
+                if (b.collisionListener) {
+                    this.mtv.normal.negate();
+                    b.collisionListener(a, this.mtv);
+                }
+            }
+
+        });
     }
 
     update(iterations = 2) {
 
         this.quadtree.clear();
         for (let body of this.bodies) {
-            body.hits = {};
             body.update();
             this.quadtree.insert(body.shape);
         }
 
-   
         for (let i = 0; i < iterations; ++i) {
+            for (const a of this.bodies) {
+                if (a.mass === 0) continue; // Static body
+                this.handleCollision(a, this.quadtree);
+            }
 
             for (const a of this.bodies) {
-                if (a.static) continue; // Static body
-                this.quadtree.iterate(this.aabb.set(a.shape), (other) => {
-                    const b = other.body;
-                    if (a !== b && !a.hits[b.id]) {
-                        // TODO : collision mask
-                        if (a.shape.handleCollision(other, this.mtv)) {
-                            b.hits[a.id] = true;
-
-                            const invMass = a.invMass + b.invMass;
-                            if (invMass > 0.0) {
-                                let j;
-                                const rv = a.velocity.copy().sub(b.velocity);
-                                // Correct velocities
-                                const normalVelocity = this.mtv.normal.dot(rv);
-                                if (normalVelocity > 0) {
-                                    j = normalVelocity * (1.0 + (a.restitution + b.restitution) * 0.5) / invMass;
-                                    a.velocity.subScl(this.mtv.normal, j * a.invMass);
-                                    b.velocity.addScl(this.mtv.normal, j * b.invMass);
-                                }
-
-                                // Correct positions
-                                const correction = this.mtv.penetration / invMass;
-                                a.position.subScl(this.mtv.normal, correction * a.invMass);
-                                b.position.addScl(this.mtv.normal, correction * b.invMass);
-
-                                // Update shapes
-                                a.shape.update();
-                                b.shape.update();
-                            }
-
-                            if (a.collisionListener) {
-                                a.collisionListener(b, this.mtv);
-                            }
-
-                            if (b.collisionListener) {
-                                this.mtv.normal.negate();
-                                b.collisionListener(a, this.mtv);
-                            }
-
-                        }
-
-                    }
-                });
+                if (a.mass === 0) continue; // Static body
+                this.handleCollision(a, this.maptree);
             }
         }
 
