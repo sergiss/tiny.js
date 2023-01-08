@@ -36,11 +36,8 @@ const game = new Game(canvas, {
         game.camera.update();
 
         world = new World(new Vec2(0, 0.098 * 2));
-        let shape = Polygon.createBox(9, 20);
-        let body = new Body(shape, new Vec2(0, 0)).setMass(1);
-        world.add(body);
 
-        shape = ComplexShape.createGear();
+        let shape = ComplexShape.createGear();
         gearBody = new Body(shape, new Vec2(0, 0)).setMass(0);
         gearBody.static = false;
         gearBody.position.set(80, 90);
@@ -63,7 +60,7 @@ const game = new Game(canvas, {
 
         gearBody.rotation += 0.02;
 
-        if (world.bodies.length < 50 && Math.random() < 0.25) addRndShape(80, 50);
+        if (world.bodies.length < 70 && Math.random() < 0.25) addRndShape(80, 50);
 
         let tmp = new Vec2(game.input.mousePosition).div(game.camera.zoom).sub(game.camera.bounds.width * 0.5, game.camera.bounds.height * 0.5).add(game.camera.position);
         if (game.input.obtain(0).justPressed) {
@@ -77,7 +74,7 @@ const game = new Game(canvas, {
             }
         }
 
-        world.update(8);
+        world.update(5);
         // console.log(player.position)
       
     },
@@ -101,7 +98,6 @@ const game = new Game(canvas, {
             y: game.input.mousePosition.y / game.camera.zoom - game.camera.bounds.height * 0.5 + game.camera.position.y,
             radius: 2,
         });
-        gearBody.shape.debug(camera.shapeRenderer);
         camera.shapeRenderer.flush();
 
         camera.spriteRenderer.projectionMatrix = camera.projection;

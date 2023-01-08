@@ -35,14 +35,8 @@ const game = new Game(canvas, {
 
         game.camera.zoom = 3;
         game.camera.update();
-
+        let shape;
         world = new World(new Vec2(0, 0.098 * 2));
-
-        let shape = ComplexShape.createGear();
-        gearBody = new Body(shape, new Vec2(0, 0)).setMass(0);
-        gearBody.position.set(80, 90);
-        gearBody.rotation = Math.PI / 2;
-        world.add(gearBody);
 
         addRndShape = (x, y) => {
             if (world.bodies.length % 2 == 0) shape = Polygon.createRandom({radius: Math.random() * 2 + 4});
@@ -57,25 +51,25 @@ const game = new Game(canvas, {
         game.camera.position.set(size.width * 0.5, size.height * 0.5);
 
         shape = Polygon.createBox(9, 20);
-        let body = new Body(shape, new Vec2(1000, 0)).setMass(1);
+        let body = new Body(shape, new Vec2(80, 50)).setMass(1);
         world.add(body);
         player = body;
     },
     update: () => {
 
-        gearBody.rotation += 0.02;
+        // gearBody.rotation += 0.02;
 
-        if (world.bodies.length < 50 && Math.random() < 0.25) addRndShape(80, 50);
+        if (world.bodies.length < 200 && Math.random() < 0.25) addRndShape(Math.random() * world.map.getSize().width, 0);
 
         let tmp = new Vec2(game.input.mousePosition).div(game.camera.zoom).sub(game.camera.bounds.width * 0.5, game.camera.bounds.height * 0.5).add(game.camera.position);
         if (game.input.obtain(0).justPressed) {
             addRndShape(tmp.x, tmp.y);
         }
 
-        // Remove bodies that are too far away
+        // Respawn bodies that are too far away
         for (let body of world.bodies) {
             if (body.mass !== 0 && body.position.len2(0, 0) > 9999999) {
-                body.position.set(100, 0);
+                body.position.set(Math.random() * world.map.getSize().width, 0);
                 body.velocity.set(0, 0);
             }
         }
@@ -88,7 +82,7 @@ const game = new Game(canvas, {
 
         game.camera.position.lerp(player.position, 0.05);
 
-        world.update(8);
+        world.update(2);
         // console.log(player.position)
       
     },
@@ -112,7 +106,6 @@ const game = new Game(canvas, {
             y: game.input.mousePosition.y / game.camera.zoom - game.camera.bounds.height * 0.5 + game.camera.position.y,
             radius: 2,
         });
-        gearBody.shape.debug(camera.shapeRenderer);
         camera.shapeRenderer.flush();
 
         camera.spriteRenderer.projectionMatrix = camera.projection;

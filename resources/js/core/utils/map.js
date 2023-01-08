@@ -202,15 +202,19 @@ export default class Map extends Loader {
                     for (x = x1; x < x2; ++x) {
                         let v = data[index + x];
                         if (v > -1) { // if has tile
-                            v = this.getAnimationFrame(v);
-                            spriteRenderer.draw({
-                                glTexture: this.texture.glTexture,
-                                uv: this.tileCache[v],
-                                x: x * ts,
-                                y: y * ts,
-                                //originX: hts, originY: hts,
-                                width: ts, height: ts
-                            });
+                            const idx = this.getAnimationFrame(v);
+                            try {                                
+                                spriteRenderer.draw({
+                                    glTexture: this.texture.glTexture,
+                                    uv: this.tileCache[idx],
+                                    x: x * ts,
+                                    y: y * ts,
+                                    //originX: hts, originY: hts,
+                                    width: ts, height: ts
+                                });
+                            } catch (e) {
+                                console.log(v);
+                            }
                         }
                     }
                 }

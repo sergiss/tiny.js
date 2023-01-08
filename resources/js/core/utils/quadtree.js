@@ -9,7 +9,7 @@ import AABB from "./aabb.js";
 export class Quadtree {
 
     static MAX_DEPTH   = 16;
-    static MAX_OBJECTS = 8;
+    static MAX_OBJECTS =  8;
 
     constructor(aabb, depth = 0) {
         this.aabb = aabb;
@@ -67,36 +67,33 @@ export class Quadtree {
     }
 
     insert(aabb) {
-        let index;
         let node = this;
-        while(true) { // Loop until break
-            if(node.data.length > Quadtree.MAX_OBJECTS && node.depth < Quadtree.MAX_DEPTH) {
-                if(node.nodes.length === 0) { // Not has child nodes
-                    // Reorganize data
-                    node.split(); // Create child nodes
+        while(true) {
+            if(node.hasChildrens()) {
+                const index = node.indexOf(aabb);
+                if(index >= 0) {
+                    node = node.nodes[index];
+                } else {
+                    node.data.push(aabb);
+                    break;
+                }
+            } else {
+                node.data.push(aabb);
+                if(node.data.length > Quadtree.MAX_OBJECTS && node.depth < Quadtree.MAX_DEPTH) {
+                    node.split(); // Split cuadrant
                     // Move data to child nodes
-                    for(let i = 0; i < node.data.length;) {
-                        index = node.indexOf(node.data[i]); // Find cuadrant
-                        if(index > -1) {
-                            node.nodes[index].insert(node.data[i]); // Insert to child node (data moved)
-                            node.data.splice(i, 1); // Remove from current data
-                        } else {
-                            i++; // Next (data not moved)
+                    for(let i = 0; i < node.data.length; ++i) {
+                        const index = node.indexOf(node.data[i]);
+                        if(index >= 0) {
+                            node.nodes[index].data.push(node.data[i]);
+                            node.data.splice(i, 1);
+                            --i;
                         }
                     }
                 }
-                index = node.indexOf(aabb); // Find cuadrant
-                if(index > -1) {
-                    node = node.nodes[index]; // Insert to child node
-                } else {
-                    node.data.push(aabb); // Add to data
-                    break; // Break loop
-                }
-            } else { // Add to data
-                node.data.push(aabb);
-                break; // Break loop
+                break;
             }
-        }
+        }        
     }
 
     update(aabb) {

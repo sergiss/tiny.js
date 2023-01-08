@@ -19,7 +19,7 @@ const game = new Game(canvas, {
     create: () => {
         console.log("create");
 
-        game.camera.zoom = 2;
+        game.camera.zoom = 1.5;
         game.camera.update();
 
         font = game.resourceManager.get("font");

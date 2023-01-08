@@ -47,6 +47,10 @@ export default class Polygon extends Shape {
         }
 
         this.lastRotation = null;
+
+        if (!this.isConvex()) {
+            throw new Error("Polygon must be convex");
+        }  
     
     }
 

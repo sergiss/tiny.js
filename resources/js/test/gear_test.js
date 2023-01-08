@@ -71,7 +71,7 @@ const game = new Game(canvas, {
     update: () => {
 
         const n = world.bodies.length;
-        if (n < 70 && Math.random() < 0.1) {
+        if (n < 100 && Math.random() < 0.1) {
             const body = new Body(n % 2 == 0 ? new Circle(5) : Polygon.createRandom({ radius: 6 }));
             body.shape.color = rndBGR();
             body.position.set(0, 64);
@@ -89,7 +89,7 @@ const game = new Game(canvas, {
         }
 
         // Update physics
-        world.update(3);
+        world.update(2);
 
         if (world.bodies.length > 20) game.camera.position.lerp(world.bodies[20].position, 0.01);
 

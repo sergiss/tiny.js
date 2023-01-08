@@ -23,7 +23,6 @@ export default class World {
             )
         );
 
-        this.mapBodies = [];
         this.maptree = new Quadtree(
             new AABB(
                 new Vec2(-9999),
@@ -47,6 +46,8 @@ export default class World {
         const size = map.getSize();
         this.quadtree.aabb.min.set(0, 0);
         this.quadtree.aabb.max.set(size.width, size.height);
+        this.maptree.aabb.min.set(0, 0);
+        this.maptree.aabb.max.set(size.width, size.height);
 
         const list = map.objects["polygon"];
         if (list) {
@@ -65,19 +66,18 @@ export default class World {
                     if (!polygon.isConvex()) {
                         throw Error("Polygon must be convex");
                     }
-                    const body = new Body(polygon);
-                    body.setMass(0);
-                    this.add(body);
+                    const body = new Body(polygon).setMass(0);
+                    body.shape.update();             
+                    this.maptree.insert(body.shape);
                 }
             }
         }
 
         const bodies = this.map.createCollisionBodies(Map.COLLISION);
         for (const body of bodies) {
-            body.update();
+            body.shape.update();
             this.maptree.insert(body.shape);
-        }
-        this.mapBodies = bodies;
+        } 
 
     }
 
@@ -107,11 +107,9 @@ export default class World {
             quadtree.iterate(a.shape, (other) => {
                 const b = other.body;
                 if (a !== b) {
-                    const hash = a.id < b.id ? a.id + "-" + b.id : b.id + "-" + a.id;
-                    if (!pairSet[hash]) {
-                        pairSet[hash] = true;
-                        this.handleCollision(a, b);
-                    }
+
+                    this.handleCollision(a, b);
+                    
                 }
             });
         }
@@ -120,7 +118,7 @@ export default class World {
     handleCollision(a, b) {
         if (a.shape.handleCollision(b.shape, this.mtv)) {
             const invMass = a.invMass + b.invMass;
-            
+
             // Correct velocities
             const rvX = a.velocity.x - b.velocity.x;
             const rvY = a.velocity.y - b.velocity.y;
@@ -163,11 +161,7 @@ export default class World {
         
         for (let i = 0; i < iterations; ++i) {
             this.handleCollisions(this.bodies, this.quadtree);
-           
-            /* pairs = this.getCollisionPairs(this.bodies, this.maptree);
-            for (const [a, b] of pairs) {
-                this.handleCollision(a, b);
-            } */
+            this.handleCollisions(this.bodies, this.maptree);
         }
         
     }
