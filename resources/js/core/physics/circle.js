@@ -41,7 +41,9 @@ export default class Circle extends Shape {
     }
 
     copy() {
-        return new Circle(this.radius);
+        const result = new Circle(this.radius);
+        result.color = this.color;
+        return result;
     }
 
     debug(renderer, abgr) {

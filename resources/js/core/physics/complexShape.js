@@ -88,6 +88,7 @@ export default class ComplexShape extends Shape {
                 new Vec2(radius + halfToothLength, -halfToothWidth).rotate(rotation),
                 new Vec2(radius - halfToothLength, -halfToothWidth).rotate(rotation)
             ]);
+            tooth.color = 0xFF0000FF;
             gear.shapes.push(tooth);
         }
 

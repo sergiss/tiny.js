@@ -145,7 +145,9 @@ export default class Polygon extends Shape {
     }
 
     copy() {
-        return new Polygon(this.vertices);
+        const result = new Polygon(this.vertices);
+        result.color = this.color;
+        return result;
     }
 
     debug(renderer, abgr) {

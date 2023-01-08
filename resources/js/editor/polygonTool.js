@@ -18,6 +18,7 @@ export default class PolygonTool extends Tool {
         const input = this.editor.game.input;
 
         const mousePosition = this.editor.getMousePosition();
+        const tmp = mousePosition.copy();
 
         // Move camera
         if (input.obtain(1).pressed) {
@@ -46,7 +47,7 @@ export default class PolygonTool extends Tool {
                     this.currentBody = null;
                 }
 
-                const body = this.editor.getBodyAt(mousePosition);
+                const body = this.editor.getBodyAt(tmp);
                 if (body && body.mass == 0 && body.shape.type == 1) { 
                     // Select body
                     this.lastMousePosition = mousePosition;

@@ -34,7 +34,6 @@ export default class Editor {
                 } catch (e) {
                     console.error(e);
                 }
-
             }
         }
 
