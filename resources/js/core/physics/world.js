@@ -46,6 +46,7 @@ export default class World {
         const size = map.getSize();
         this.quadtree.aabb.min.set(0, 0);
         this.quadtree.aabb.max.set(size.width, size.height);
+
         this.maptree.aabb.min.set(0, 0);
         this.maptree.aabb.max.set(size.width, size.height);
 
@@ -73,11 +74,11 @@ export default class World {
             }
         }
 
-        const bodies = this.map.createCollisionBodies(Map.COLLISION);
-        for (const body of bodies) {
-            body.shape.update();
-            this.maptree.insert(body.shape);
-        } 
+        // const bodies = this.map.createCollisionBodies(Map.COLLISION);
+        //for (const body of bodies) {
+        //    body.shape.update();
+        //    this.maptree.insert(body.shape);
+        //} 
 
     }
 
@@ -100,7 +101,6 @@ export default class World {
     }
 
     handleCollisions(bodies, quadtree) {
-        const pairSet = {};
         for (let i = 0; i < bodies.length; ++i) {
             const a = bodies[i];
             if (a.invMass === 0.0) continue;
@@ -162,6 +162,8 @@ export default class World {
         for (let i = 0; i < iterations; ++i) {
             this.handleCollisions(this.bodies, this.quadtree);
             this.handleCollisions(this.bodies, this.maptree);
+
+            // this.handleCollisions(this.bodies, this.map);
         }
         
     }

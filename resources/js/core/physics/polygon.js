@@ -166,7 +166,7 @@ export default class Polygon extends Shape {
         super.debug(renderer);
     }
 
-    static createBox(width, height) {
+    static createBox(width, height = width) {
         const hw = width * 0.5, hh = height * 0.5;
         const vertices = [
             new Vec2(-hw, -hh),

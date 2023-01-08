@@ -5,6 +5,7 @@
 
 import Body from "../physics/body.js";
 import Polygon from "../physics/polygon.js";
+import Shape from "../physics/shape.js";
 import Loader from "./loader.js";
 import { extrudeTileset } from "./tilesetExtruder.js";
 
@@ -27,6 +28,7 @@ export default class Map extends Loader {
         this.layerList = [];
 
         this.animationClips = {};
+
     }
 
     async load(src, manager) {
@@ -131,6 +133,9 @@ export default class Map extends Loader {
     initialize(manager) {
         this.texture = manager.get(this.tileset.image);
         this.updateTileCache();
+
+        this.virtualBody = new Body(Polygon.createBox(this.tileSize));
+        this.virtualBody.setMass(0);
     }
 
     updateTileCache() {
@@ -223,6 +228,39 @@ export default class Map extends Loader {
 
     }
 
+    // Experimental
+    iterate(shape, iterator, layerId = Map.COLLISION) {
+
+        const minX = shape.getMinX();
+        const minY = shape.getMinY();
+        const maxX = shape.getMaxX();
+        const maxY = shape.getMaxY();
+
+        const ts = this.tileSize;
+        const hs = ts * 0.5;
+        
+        const x1 = Math.floor(minX / ts);
+        const y1 = Math.floor(minY / ts);
+        const x2 = Math.ceil (maxX / ts);
+        const y2 = Math.ceil (maxY / ts);
+
+        const layer = this.layerMap[layerId];
+        const data = layer.data;
+
+        for (let y = y1; y < y2; ++y) {
+            const index = y * this.width;
+            for (let x = x1; x < x2; ++x) {
+                if (data[index + x] > -1) {
+                    this.virtualBody.position.set(x * ts + hs , y * ts + hs);
+                    this.virtualBody.shape.update();
+                    iterator(this.virtualBody.shape);
+                }
+            }
+        }
+
+    }
+
+    // Experimental
     createCollisionBodies(layerId) {
         
         const result = [];

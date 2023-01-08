@@ -17,7 +17,6 @@ const canvas = document.getElementById("game");
 let font;
 let world;
 let addRndShape;
-let gearBody;
 let player;
 
 const game = new Game(canvas, {
@@ -102,7 +101,7 @@ const game = new Game(canvas, {
         camera.shapeRenderer.begin(camera);
         world.debug(camera);
         camera.shapeRenderer.drawCircle({
-            x: game.input.mousePosition.x / game.camera.zoom - game.camera.bounds.width * 0.5 + game.camera.position.x,
+            x: game.input.mousePosition.x / game.camera.zoom - game.camera.bounds.width  * 0.5 + game.camera.position.x,
             y: game.input.mousePosition.y / game.camera.zoom - game.camera.bounds.height * 0.5 + game.camera.position.y,
             radius: 2,
         });
