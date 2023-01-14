@@ -28,8 +28,6 @@ const game = new Game(canvas, {
 
     },
     update: () => {
-        const camera = game.camera;
-        camera.update
 
         const handleKey = (key, frequency) => {
             if (game.input.obtain(key).justPressed) {

@@ -62,6 +62,20 @@ export default class Polygon extends Shape {
         return sum.div(vertices.length);
     }
 
+    computeWorldVertices(position = new Vec2(), rotation = 0) {
+        const vertices = this.vertices;
+        const worldVertices = [];
+        for (let i = 0; i < vertices.length; i++) {
+            const vertex = vertices[i].copy();
+            if (rotation !== 0) {
+                vertex.rotate(rotation);
+            }
+            vertex.add(position);
+            worldVertices.push(vertex);
+        }
+        return worldVertices;
+    }
+
     update() {
         const body = this.body;
         const updateNormals = body.rotation !== this.lastRotation;

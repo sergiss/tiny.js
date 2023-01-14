@@ -81,6 +81,18 @@ export default class ShapeRenderer {
         this.indices = 0;
     }
 
+    drawTriangle({x1, y1, x2, y2, x3, y3, lineWidth, color = this.color, c1 = color, c2 = color, c3 = color}) {
+        this.drawLine(
+            {x1: x1, y1: y1, x2: x2, y2: y2, lineWidth, c1: c1, c2: c2}
+        );
+        this.drawLine(
+            {x1: x2, y1: y2, x2: x3, y2: y3, lineWidth, c1: c2, c2: c3}
+        );
+        this.drawLine(
+            {x1: x3, y1: y3, x2: x1, y2: y1, lineWidth, c1: c3, c2: c1}
+        );
+    }
+
     drawFillTriangle(x1, y1, x2, y2, x3, y3, c1 = this.color, c2 = c1, c3 = c1) {
 
         if (this.indices == MAX_BATCH) {
