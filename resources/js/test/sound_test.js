@@ -76,7 +76,7 @@ const game = new Game(canvas, {
 
         font.render({
             renderer: camera.spriteRenderer,
-            text: "Press A, W, S, E, D, F, T, G, Y, H, U, J' to play a note.",
+            text: "Press A, W, S, E, D, F, T, G, Y, H, U, J to play a note.",
             x: -camera.bounds.width * 0.5 + 10,
             y: -camera.bounds.height * 0.5 + 25,
             color: 0xFFFFFFFF, shadowEnabled: true,
