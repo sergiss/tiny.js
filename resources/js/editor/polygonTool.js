@@ -5,6 +5,7 @@
 
 import Body from "../core/physics/body.js";
 import Circle from "../core/physics/circle.js";
+import Vec2 from "../core/utils/vec2.js";
 import Tool from "./tool.js";
 
 export default class PolygonTool extends Tool {
@@ -17,15 +18,15 @@ export default class PolygonTool extends Tool {
     update() {
         const input = this.editor.game.input;
 
-        const mousePosition = this.editor.getMousePosition();
-        const tmp = mousePosition.copy();
+        this.mousePosition = this.editor.getMousePosition();
+        // const tmp = mousePosition.copy();
 
         // Move camera
         if (input.obtain(1).pressed) {
             if (input.obtain(1).justPressed) {
-                this.lastMousePosition = mousePosition;
+                this.lastMousePosition = this.mousePosition;
             } else {
-                const delta = mousePosition.sub(this.lastMousePosition);
+                const delta = this.mousePosition.sub(this.lastMousePosition);
                 this.editor.game.camera.position.sub(delta);
             }
         }
@@ -33,18 +34,36 @@ export default class PolygonTool extends Tool {
         // Align to grid
         if (input.obtain('ShiftLeft').pressed) {
             const gridStep = this.editor.gridStep;
-            mousePosition.x = Math.round(mousePosition.x / gridStep) * gridStep;
-            mousePosition.y = Math.round(mousePosition.y / gridStep) * gridStep;
+            this.mousePosition.x = Math.round(this.mousePosition.x / gridStep) * gridStep;
+            this.mousePosition.y = Math.round(this.mousePosition.y / gridStep) * gridStep;
         }
 
         // Add vertex or edit body
         if (input.obtain(0).pressed) {
-            this.handleEditAction({ input, mousePosition });
+            this.handleEditAction();
         }
 
         if (input.obtain('Delete').justPressed) {
-            this.editMode = false;
-            this.polygon = [];
+            let remove = true;
+            if (this.currentVertex) {
+                this.polygon.splice(this.polygon.indexOf(this.currentVertex), 1);
+                this.currentVertex = null;
+                if (this.polygon.length > 2) {
+                    remove = false;
+                }
+            }
+            if (remove) {
+                this.editMode = false;
+                this.polygon = [];
+            }
+        } else if (input.obtain('Insert').justPressed) {
+            if (this.currentVertex) {
+                const index = this.polygon.indexOf(this.currentVertex);
+                const v1 = this.polygon[index];
+                const v2 = this.polygon[(index + 1) % this.polygon.length];
+                const v = v2.copy().sub(v1).scl(0.5).add(v1);
+                this.polygon.splice(index + 1, 0, v);
+            }
         }
 
         // Remove last vertex
@@ -65,50 +84,51 @@ export default class PolygonTool extends Tool {
 
         // Add ball
         if (input.obtain('KeyB').justPressed) {
-            this.editor.world.add(new Body(new Circle(8)).setPosition(mousePosition));
+            this.editor.world.add(new Body(new Circle(8)).setPosition(this.mousePosition));
         }
 
     }
 
-    handleEditAction({ input, mousePosition }) {
+    handleEditAction() {
+
+        const input = this.editor.game.input;
+        const mousePosition = this.mousePosition;
 
         if (input.obtain(0).justPressed) {
             this.currentVertex = null;
-            const body = this.editor.getBodyAt(mousePosition);
+            const body = !this.editmode && this.polygon.length === 0 && this.editor.getBodyAt(mousePosition);
             if (body?.mass === 0 && body?.static === false) { // check if body is editable
                 this.releaseCurrentBody();
                 this.editor.world.remove(body);
                 this.editMode = true;
                 this.polygon = body.shape.worldVertices;
                 this.lastMousePosition = mousePosition; // Refresh last mouse position
-            } else if (this.editMode) {               
+            } else if (this.editMode) {
                 // Select vertex
                 const vertex = this.polygon.find(v => v.dst(mousePosition) < 5);
                 if (vertex) {
                     this.currentVertex = vertex;
                     this.lastMousePosition = vertex.copy(); // Refresh last mouse position
                 } else if (!this.contains(this.polygon, mousePosition)) { // check if current body contains mouse position
-                    this.releaseCurrentBody();                    
+                    this.releaseCurrentBody();
                 } else {
                     this.lastMousePosition = mousePosition; // Refresh last mouse position
                 }
             } else {
                 this.addVertex(mousePosition);
             }
-        } else {
-
-            if (this.editMode) {
-                const delta = mousePosition.copy().sub(this.lastMousePosition);
-                if (this.currentVertex) { // Move Vertex
-                    this.currentVertex.add(delta);
-                } else { // Move Body                    
-                    for (const vertex of this.polygon) { // Move all vertices
-                        vertex.add(delta);
-                    }
+        } else if (this.editMode) {
+            const delta = mousePosition.copy().sub(this.lastMousePosition);
+            if (this.currentVertex) { // Move Vertex
+                this.currentVertex.add(delta);
+            } else { // Move Body                    
+                for (const vertex of this.polygon) { // Move all vertices
+                    vertex.add(delta);
                 }
-                this.lastMousePosition = mousePosition;
             }
+            this.lastMousePosition = mousePosition;
         }
+
 
     }
 
@@ -142,7 +162,7 @@ export default class PolygonTool extends Tool {
                 return;
             }
         }
-        console.log(vertex);
+        // console.log(vertex);
         this.polygon.push(vertex);
     }
 
@@ -155,11 +175,15 @@ export default class PolygonTool extends Tool {
         });
     }
 
+    clear() {
+        this.polygon = [];
+        this.currentVertex = null;
+        this.editMode = false;
+    }
+
     render(camera) {
 
         if (this.polygon.length) {
-
-            const mousePosition = this.editor.getMousePosition();
 
             let v1, v2 = this.polygon[0];
             const n = this.editMode ? this.polygon.length : this.polygon.length - 1;
@@ -176,15 +200,24 @@ export default class PolygonTool extends Tool {
             this.drawVertex(v2, 4, 4, 0xFF00FFFF, camera.shapeRenderer);
 
             if (!this.editMode) {
+                // Draw last line
                 camera.shapeRenderer.drawLine({
-                    x1: mousePosition.x,
-                    y1: mousePosition.y,
+                    x1: this.mousePosition.x,
+                    y1: this.mousePosition.y,
                     x2: v2.x, y2: v2.y,
                     c1: 0xFFFF0000,
                 });
             }
 
         }
+
+        // Draw mouse position
+        camera.shapeRenderer.drawFillCircle({
+            x: this.mousePosition.x,
+            y: this.mousePosition.y,
+            abgr: 0xFF0000FF,
+            radius: 1,
+        });
 
     }
 

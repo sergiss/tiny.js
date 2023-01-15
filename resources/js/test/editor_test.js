@@ -4,6 +4,7 @@
  */
 
 import Game from "../core/game.js";
+import Vec2 from "../core/utils/vec2.js";
 import Editor from "../editor/editor.js";
 
 const canvas = document.getElementById("game");
@@ -37,9 +38,8 @@ const game = new Game(canvas, {
             button.id = "download";
             button.innerText = "Download";
             button.onclick = () => {
-
                 // Download world data
-                let data = localStorage.getItem('data') || [];
+                const data = localStorage.getItem('data') || [];
                 const json = JSON.stringify(data);
                 const blob = new Blob([json], { type: "application/json" });
                 const url = URL.createObjectURL(blob);
@@ -47,10 +47,11 @@ const game = new Game(canvas, {
                 a.href = url;
                 a.download = "world.json";
                 a.click();
-
             };
             document.body.appendChild(button);
             button.style.position = "absolute";
+            button.style.textAlign = "center";
+            button.style.width = "80px";
             button.style.top = "10px";
             button.style.right = "10px";
         }
@@ -62,7 +63,6 @@ const game = new Game(canvas, {
             button.id = "upload";
             button.innerText = "Upload";
             button.onclick = () => {
-
                 // Upload world data
                 const input = document.createElement("input");
                 input.type = "file";
@@ -71,19 +71,42 @@ const game = new Game(canvas, {
                     const reader = new FileReader();
                     reader.onload = (e) => {
                         const data = JSON.parse(e.target.result);
-                        localStorage.setItem('data', data);
-                        editor.initialize();
+                        for (let vertices of JSON.parse(data)) {
+                            for (let i = 0; i < vertices.length; i++) {
+                                vertices[i] = new Vec2(vertices[i].x, vertices[i].y);
+                            }
+                            editor.addPolygon(vertices);
+                        }
                         infoText = "Uploaded!";
                     };
                     reader.readAsText(file);
                 };
                 input.click();
-
             };
             document.body.appendChild(button);
             button.style.position = "absolute";
+            button.style.textAlign = "center";
+            button.style.width = "80px";
             button.style.top = "10px";
-            button.style.right = "90px";
+            button.style.right = "95px";
+        }
+
+        // Create clear button
+        const clearButton = document.getElementById("clear");
+        if (!clearButton) {
+            const button = document.createElement("button");
+            button.id = "clear";
+            button.innerText = "Clear";
+            button.onclick = () => {
+                editor.clear();
+                infoText = "Cleared!";
+            }
+            document.body.appendChild(button);
+            button.style.position = "absolute";
+            button.style.textAlign = "center";
+            button.style.width = "80px";
+            button.style.top = "10px";
+            button.style.right = "180px";
         }
         
         // Create Save button
@@ -98,8 +121,10 @@ const game = new Game(canvas, {
             }
             document.body.appendChild(button);
             button.style.position = "absolute";
+            button.style.textAlign = "center";
+            button.style.width = "80px";
             button.style.top = "10px";
-            button.style.right = "152px";
+            button.style.right = "265px";
         }
 
     },

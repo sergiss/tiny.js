@@ -136,7 +136,6 @@ export class Quadtree {
         return null;
     }
 
-       
     debug2(renderer, data) {
   
         if(data) {

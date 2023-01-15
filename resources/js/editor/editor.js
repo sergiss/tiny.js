@@ -23,7 +23,6 @@ export default class Editor {
     }
 
     initialize() {
-
         // Load from local storage
         this.world.clear();
         const data = localStorage.getItem('data');
@@ -35,7 +34,11 @@ export default class Editor {
                 this.addPolygon(vertices);
             }
         }
+    }
 
+    clear() {
+        this.world.clear();
+        if (this.currentTool) this.currentTool.clear();
     }
 
     addPolygon(vertices) {
@@ -108,8 +111,6 @@ export default class Editor {
         const camera = this.game.camera;
         camera.update();
 
-        const mousePosition = this.getMousePosition();
-
         camera.shapeRenderer.projectionMatrix = camera.combined;
         camera.shapeRenderer.begin(camera);
 
@@ -150,14 +151,6 @@ export default class Editor {
         this.world.debug(camera);
 
         if (this.currentTool) this.currentTool.render(camera);
-
-        // Draw mouse position
-        camera.shapeRenderer.drawFillCircle({
-            x: mousePosition.x,
-            y: mousePosition.y,
-            abgr: 0xFF0000FF,
-            radius: 1,
-        });
 
         // Draw center
         camera.shapeRenderer.drawFillCircle({

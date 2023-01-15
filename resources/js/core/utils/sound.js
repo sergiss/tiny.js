@@ -1,3 +1,7 @@
+/*
+ * Sergio S. - 2023
+ * https://github.com/sergiss/tiny.js
+ */
 
 import Loader from "./loader.js";
 
