@@ -71,8 +71,8 @@ const game = new Game(canvas, {
                     const reader = new FileReader();
                     reader.onload = (e) => {
                         const data = JSON.parse(e.target.result);
-                        console.log(data);
                         localStorage.setItem('data', data);
+                        editor.initialize();
                         infoText = "Uploaded!";
                     };
                     reader.readAsText(file);

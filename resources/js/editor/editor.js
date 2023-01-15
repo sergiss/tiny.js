@@ -6,6 +6,8 @@
 import Body from "../core/physics/body.js";
 import Polygon from "../core/physics/polygon.js";
 import World from "../core/physics/world.js";
+import { triangulate } from "../core/utils/earcut.js";
+import { isConvex } from "../core/utils/utils.js";
 import Vec2 from "../core/utils/vec2.js";
 import PolygonTool from "./polygonTool.js";
 
@@ -23,27 +25,42 @@ export default class Editor {
     initialize() {
 
         // Load from local storage
+        this.world.clear();
         const data = localStorage.getItem('data');
         if (data) {
             for (let vertices of JSON.parse(data)) {
                 for (let i = 0; i < vertices.length; i++) {
                     vertices[i] = new Vec2(vertices[i].x, vertices[i].y);
                 }
-                try {
-                    this.addPolygon(vertices);
-                } catch (e) {
-                    console.error(e);
-                }
+                this.addPolygon(vertices);
             }
         }
 
     }
 
     addPolygon(vertices) {
-        const polygon = new Polygon(vertices);
-        const body = new Body(polygon);
-        body.setMass(0);
-        this.world.add(body);
+
+        const handleVertices = (vertices) => {
+            const polygon = new Polygon(vertices);
+            const body = new Body(polygon);
+            body.setMass(0);
+            body.static = false;
+            this.world.add(body);
+        }
+
+        if (isConvex(vertices)) {
+            handleVertices(vertices);
+        } else {
+            const indices = triangulate(vertices);
+            for (let i = 0; i < indices.length; i += 3) {
+                handleVertices([
+                    vertices[indices[i]],
+                    vertices[indices[i + 1]],
+                    vertices[indices[i + 2]]
+                ]);
+            }
+        }
+
     }
 
     saveVertices() {
@@ -73,7 +90,7 @@ export default class Editor {
         }
 
         // Update physics
-        this.world.update(10);
+        this.world.update(2);
 
     }
 
@@ -99,7 +116,7 @@ export default class Editor {
         // Draw grid
         const gridStep = this.gridStep;
         const gridColor = 0xFF222222;
-       
+
         const hw = camera.bounds.width * 0.5;
         const hh = camera.bounds.height * 0.5;
         const cameraPosition = camera.position;
@@ -130,6 +147,8 @@ export default class Editor {
             });
         }
 
+        this.world.debug(camera);
+
         if (this.currentTool) this.currentTool.render(camera);
 
         // Draw mouse position
@@ -148,7 +167,6 @@ export default class Editor {
             radius: 1,
         });
 
-        this.world.debug(camera);
         camera.shapeRenderer.flush();
 
     }

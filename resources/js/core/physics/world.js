@@ -82,6 +82,12 @@ export default class World {
 
     }
 
+    clear() {
+        this.bodies = [];
+        this.quadtree.clear();
+        this.maptree.clear();
+    }
+
     add(body) {
         this.bodies.push(body);
         body.shape.update();
